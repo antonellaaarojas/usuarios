@@ -1,29 +1,25 @@
 ```mermaid
 graph TD
-    A[Cliente] -->|GET /api/patients| B[auth middleware]
-    B -->|checkRole middleware| C[getAllPatients controller]
-    C -->|Paciente model| D[MongoDB]
+    A[Cliente] -->|GET /api/doctors| B[auth middleware]
+    B -->|checkRole middleware| C[getAllDoctors controller]
+    C -->|Filtros especialidad/activo| D[Doctor model]
+    D -->|MongoDB| E[Respuesta JSON]
+    E -->|Doctores filtrados| A
+
+    A -->|POST /api/doctors| F[auth middleware]
+    F -->|checkRole middleware| G[doctorValidator]
+    G -->|createDoctor controller| H[Verificar matrícula única]
+    H -->|Doctor model| D
     D -->|Respuesta JSON| A
 
-    A -->|POST /api/patients| E[auth middleware]
-    E -->|checkRole middleware| F[patientValidator]
-    F -->|createPatient controller| G[Validar unicidad DNI]
-    G -->|Crear paciente| D
+    A -->|GET /api/doctors/:id| I[auth middleware]
+    I -->|checkRole middleware| J[getDoctorById controller]
+    J -->|Doctor model| D
     D -->|Respuesta JSON| A
 
-    A -->|GET /api/patients/:id| H[auth middleware]
-    H -->|checkRole middleware| I[getPatientById controller]
-    I -->|Paciente model| D
-    D -->|Respuesta JSON| A
-
-    A -->|PUT /api/patients/:id| J[auth middleware]
-    J -->|checkRole middleware| K[patientValidator]
-    K -->|updatePatient controller| L[Actualizar paciente]
-    L -->|Paciente model| D
-    D -->|Respuesta JSON| A
-
-    A -->|DELETE /api/patients/:id| M[auth middleware]
-    M -->|checkRole middleware| N[deletePatient controller]
-    N -->|Verificar si existe| D
+    A -->|PUT /api/doctors/:id| K[auth middleware]
+    K -->|checkRole middleware| L[updateDoctor controller]
+    L -->|Verificar disponibilidad| M[Actualizar doctor]
+    M -->|Doctor model| D
     D -->|Respuesta JSON| A
 ```
