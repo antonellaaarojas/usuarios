@@ -1,25 +1,36 @@
 ```mermaid
-graph TD
-    A[Cliente] -->|GET /api/doctors| B[auth middleware]
-    B -->|checkRole middleware| C[getAllDoctors controller]
-    C -->|Filtros especialidad/activo| D[Doctor model]
-    D -->|MongoDB| E[Respuesta JSON]
-    E -->|Doctores filtrados| A
+sequenceDiagram
+    participant Cliente
+    participant API
+    participant Validators
+    participant Controllers
+    participant Models
+    participant DB
 
-    A -->|POST /api/doctors| F[auth middleware]
-    F -->|checkRole middleware| G[doctorValidator]
-    G -->|createDoctor controller| H[Verificar matrícula única]
-    H -->|Doctor model| D
-    D -->|Respuesta JSON| A
+    Cliente->>API: GET /api/appointment?filtros
+    API->>Controllers: getAppointments
+    Controllers->>Models: Query con filtros
+    Models->>DB: Ejecutar consulta
+    DB->>Controllers: Resultados
+    Controllers->>Cliente: Lista de turnos
 
-    A -->|GET /api/doctors/:id| I[auth middleware]
-    I -->|checkRole middleware| J[getDoctorById controller]
-    J -->|Doctor model| D
-    D -->|Respuesta JSON| A
+    Cliente->>API: POST /api/appointment
+    API->>Validators: turnoValidator
+    Validators->>Controllers: Validar entrada
+    Controllers->>Models: verificarDisponibilidad
+    Models->>DB: Revisar conflictos
+    DB->>Controllers: Resultado
+    Controllers->>Models: Crear turno
+    Models->>DB: Guardar
+    DB->>Cliente: Turno creado
 
-    A -->|PUT /api/doctors/:id| K[auth middleware]
-    K -->|checkRole middleware| L[updateDoctor controller]
-    L -->|Verificar disponibilidad| M[Actualizar doctor]
-    M -->|Doctor model| D
-    D -->|Respuesta JSON| A
+    Cliente->>API: PATCH /api/appointment/:id/estado
+    API->>Validators: estadoValidator
+    Validators->>Controllers: Validar entrada
+    Controllers->>Models: Buscar turno
+    Models->>DB: Encontrar por ID
+    DB->>Controllers: Turno encontrado
+    Controllers->>Models: Actualizar estado
+    Models->>DB: Guardar cambios
+    DB->>Cliente: Estado actualizado
 ```
